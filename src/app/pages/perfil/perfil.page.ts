@@ -5,14 +5,14 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonAvatar, IonButton, IonIcon, IonList, 
   IonItem, IonInput, ActionSheetController, ToastController,
-  NavController 
+  NavController, IonModal 
 } from '@ionic/angular/standalone'; 
 import { DataService } from '../../services/data';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { addIcons } from 'ionicons';
 import { 
   cameraOutline, imageOutline, closeOutline, 
-  checkmarkCircleOutline, arrowBackOutline 
+  checkmarkCircleOutline, arrowBackOutline, logOutOutline 
 } from 'ionicons/icons';
 
 @Component({
@@ -22,10 +22,12 @@ import {
   imports: [
     CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
     IonContent, IonButtons, IonAvatar, IonButton, 
-    IonIcon, IonList, IonItem, IonInput
+    IonIcon, IonList, IonItem, IonInput, IonModal
   ]
 })
 export class PerfilPage implements OnInit {
+
+  isModalOpen = false; // Controla si se ve la foto en grande
   
   constructor(
     public dataService: DataService,
@@ -33,23 +35,33 @@ export class PerfilPage implements OnInit {
     private toastCtrl: ToastController,
     private navCtrl: NavController 
   ) {
-    // Registramos los iconos que vamos a usar
+    // Registramos todos los iconos necesarios
     addIcons({ 
       cameraOutline, imageOutline, closeOutline, 
-      checkmarkCircleOutline, arrowBackOutline 
+      checkmarkCircleOutline, arrowBackOutline, logOutOutline
     });
   }
 
   ngOnInit() {
-    // Si por error entran aquí sin loguearse, los mandamos al login
+    // Validación de seguridad
     if (!this.dataService.usuarioLogueado) {
       this.navCtrl.navigateRoot('/login');
     }
   }
 
-  // Función para que el botón de la flecha funcione siempre
   regresar() {
     this.navCtrl.back();
+  }
+
+  // Función para abrir el modal
+  verFoto() {
+    this.isModalOpen = true;
+  }
+
+  async cerrarSesion() {
+    this.dataService.usuarioLogueado = null;
+    this.navCtrl.navigateRoot('/login');
+    this.mostrarMensaje('Sesión cerrada correctamente');
   }
 
   async cambiarFoto() {
@@ -86,10 +98,8 @@ export class PerfilPage implements OnInit {
       });
 
       if (image && image.webPath) {
-        // Guardamos la foto en el servicio
         this.dataService.usuarioLogueado.foto = image.webPath;
         
-        // Actualizamos la lista global para que no se pierda al navegar
         const index = this.dataService.usuarios.findIndex(
           u => u.correo === this.dataService.usuarioLogueado.correo
         );
@@ -100,7 +110,7 @@ export class PerfilPage implements OnInit {
         this.mostrarMensaje('¡Foto de perfil actualizada!');
       }
     } catch (error) {
-      console.log('El usuario cerró la cámara');
+      console.log('Usuario canceló selección de imagen');
     }
   }
 

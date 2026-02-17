@@ -35,3 +35,42 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ---------------------------------------------------------------------------- */
+/* Ajustes Personalizados para Safe Zones y Estética */
+/* ---------------------------------------------------------------------------- */
+
+:root {
+  /* Asegura que el color rojo de la barra se vea bien */
+  --ion-color-danger: #B91F15; 
+}
+
+/* Ajuste para que el contenido respete el "Notch" y barras del sistema */
+ion-header {
+  padding-top: env(safe-area-inset-top);
+}
+
+ion-content {
+  /* Agrega espacio extra abajo para que el contenido no quede pegado al borde inferior */
+  --offset-bottom: env(safe-area-inset-bottom);
+}
+
+/* Estilo global para los botones de retroceso */
+ion-back-button {
+  --color: white;
+}
+
+/* Estilo opcional para que las imágenes de las cards no se vean cuadradas */
+ion-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover; /* Esto hace que la imagen se llene sin deformarse */
+}
+
+/* Centrar avatares en el perfil */
+.center-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}

@@ -1,9 +1,16 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'aplicacion',
-  webDir: 'www'
+  appName: 'Noticias Mex',
+  webDir: 'www',
+
+  plugins: {
+    StatusBar: {
+      backgroundColor: '#eb445a',
+      style: 'DARK',
+    },
+  },
 };
 
 export default config;

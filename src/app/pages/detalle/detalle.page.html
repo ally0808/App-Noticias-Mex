@@ -1,0 +1,47 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: transparent;">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text="" color="light" 
+        style="background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; margin-left: 10px;">
+      </ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (dataService.noticiaSeleccionada; as n) {
+    <div class="noticia-header">
+      <img [src]="n.img" alt="imagen noticia" />
+      <div class="overlay-sombra"></div>
+      <div class="texto-encima">
+        <ion-badge color="danger" mode="ios">TENDENCIA</ion-badge>
+        <h1>{{ n.titulo }}</h1>
+      </div>
+    </div>
+
+    <div class="cuerpo-lectura">
+      <div class="meta-data">
+        <ion-avatar>
+          <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        </ion-avatar>
+        <div class="info-autor">
+          <ion-text color="dark"><strong>{{ n.autor }}</strong></ion-text>
+          <ion-text color="medium"><p>Publicado hace 2 horas</p></ion-text>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="resumen">{{ n.desc }}</p>
+      
+      <p class="texto-relleno">
+        Esta noticia está impactando a la comunidad global. Se espera que en los próximos días se den a conocer más detalles sobre el impacto que esto tendrá en la industria y en la vida cotidiana de las personas.
+      </p>
+
+      <ion-button expand="block" shape="round" color="danger" class="btn-compartir">
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
+        Compartir con amigos
+      </ion-button>
+    </div>
+  }
+</ion-content>

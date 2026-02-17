@@ -1,20 +1,40 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
+<ion-header class="ion-no-border">
+  <ion-toolbar color="white">
+    <ion-buttons slot="start">
+      <ion-icon name="newspaper-outline" color="danger" style="font-size: 2rem; margin-left: 15px;"></ion-icon>
+    </ion-buttons>
+
+    <ion-title style="font-weight: 800; font-size: 1.4rem; padding-inline: 10px;">
+      Noticias <span style="color: #eb445a;">Mex</span>
     </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="router.navigate(['/perfil'])">
+        <ion-avatar style="width: 35px; height: 35px; border: 2px solid #eb445a;">
+          <img [src]="dataService.usuarioLogueado?.foto" />
+        </ion-avatar>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="welcome-header">
+    <h2 style="font-weight: 800; margin-top: 10px;">Titulares de hoy</h2>
   </div>
+
+  @for (noticia of dataService.noticias; track noticia.id) {
+    <ion-card class="noticia-card" (click)="verDetalle(noticia)">
+      <div class="image-container">
+        <img [src]="noticia.img" />
+        <div class="badge-autor">{{ noticia.autor }}</div>
+      </div>
+      <ion-card-header>
+        <ion-card-title>{{ noticia.titulo }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ noticia.desc | slice:0:100 }}...</p>
+      </ion-card-content>
+    </ion-card>
+  }
 </ion-content>

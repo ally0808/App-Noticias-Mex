@@ -1,0 +1,38 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="danger">
+    <ion-buttons slot="start">
+      <ion-button (click)="regresar()">
+        <ion-icon slot="icon-only" name="arrow-back-outline" style="color: white;"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding ion-text-center" *ngIf="dataService.usuarioLogueado">
+  
+  <div style="margin-top: 30px;">
+    <ion-avatar style="margin: 0 auto; width: 160px; height: 160px; border: 4px solid #eb445a; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+      <img [src]="dataService.usuarioLogueado.foto" 
+           style="width: 100%; height: 100%; object-fit: cover;" />
+    </ion-avatar>
+
+    <ion-button fill="clear" (click)="cambiarFoto()" style="margin-top: 15px; font-weight: bold; --color: #eb445a;">
+      <ion-icon name="camera-outline" slot="start"></ion-icon>
+      CAMBIAR FOTO
+    </ion-button>
+  </div>
+
+  <ion-list lines="full" class="ion-margin-top" style="border-radius: 15px; overflow: hidden;">
+    <ion-item>
+      <ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="dataService.usuarioLogueado.nombre" placeholder="Tu nombre"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Correo" labelPlacement="stacked" [(ngModel)]="dataService.usuarioLogueado.correo" readonly="true"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <p style="font-size: 0.8rem; color: #888; margin-top: 20px;">
+    Los cambios se guardan automáticamente en tu sesión.
+  </p>
+</ion-content>

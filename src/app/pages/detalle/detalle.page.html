@@ -1,47 +1,84 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border" style="position: absolute; z-index: 10;">
   <ion-toolbar style="--background: transparent;">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" text="" color="light" 
-        style="background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; margin-left: 10px;">
-      </ion-back-button>
+      <ion-button (click)="regresar()" 
+        style="--background: rgba(0,0,0,0.6); --border-radius: 50%; width: 42px; height: 42px; margin-left: 10px; --color: white;">
+        <ion-icon name="arrow-back-outline" style="font-size: 22px;"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  @if (dataService.noticiaSeleccionada; as n) {
-    <div class="noticia-header">
-      <img [src]="n.img" alt="imagen noticia" />
-      <div class="overlay-sombra"></div>
-      <div class="texto-encima">
-        <ion-badge color="danger" mode="ios">TENDENCIA</ion-badge>
-        <h1>{{ n.titulo }}</h1>
-      </div>
-    </div>
-
-    <div class="cuerpo-lectura">
-      <div class="meta-data">
-        <ion-avatar>
-          <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+  
+  <div *ngIf="cargando">
+    <ion-skeleton-text animated style="width: 100%; height: 350px; margin: 0;"></ion-skeleton-text>
+    
+    <div class="cuerpo-lectura" style="padding: 20px;">
+      <ion-skeleton-text animated style="width: 80px; height: 20px; border-radius: 10px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 90%; height: 30px; margin-top: 15px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 60%; height: 30px; margin-top: 5px;"></ion-skeleton-text>
+      
+      <div style="display: flex; align-items: center; margin-top: 25px;">
+        <ion-avatar slot="start" style="width: 45px; height: 45px;">
+          <ion-skeleton-text animated></ion-skeleton-text>
         </ion-avatar>
-        <div class="info-autor">
-          <ion-text color="dark"><strong>{{ n.autor }}</strong></ion-text>
-          <ion-text color="medium"><p>Publicado hace 2 horas</p></ion-text>
+        <div style="margin-left: 15px; flex: 1;">
+          <ion-skeleton-text animated style="width: 40%; height: 15px;"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 25%; height: 12px; margin-top: 5px;"></ion-skeleton-text>
         </div>
       </div>
 
-      <div class="divider"></div>
-
-      <p class="resumen">{{ n.desc }}</p>
+      <div style="height: 1px; background: #ececec; margin: 20px 0;"></div>
       
-      <p class="texto-relleno">
-        Esta noticia está impactando a la comunidad global. Se espera que en los próximos días se den a conocer más detalles sobre el impacto que esto tendrá en la industria y en la vida cotidiana de las personas.
-      </p>
-
-      <ion-button (click)="compartir()" expand="block" shape="round" color="danger" class="btn-compartir">
-      <ion-icon name="share-social-outline" slot="start"></ion-icon>
-  Compartir con amigos
-</ion-button>
+      <ion-skeleton-text animated style="width: 100%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 100%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 95%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 70%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
     </div>
-  }
+  </div>
+
+  <div *ngIf="!cargando">
+    @if (dataService.noticiaSeleccionada()) {
+      <div class="noticia-header">
+        <img [src]="dataService.noticiaSeleccionada()?.img" alt="imagen noticia" />
+        <div class="overlay-sombra"></div>
+        <div class="texto-encima">
+          <ion-badge color="danger" mode="ios">TENDENCIA</ion-badge>
+          <h1>{{ dataService.noticiaSeleccionada()?.titulo }}</h1>
+        </div>
+      </div>
+
+      <div class="cuerpo-lectura">
+        <div class="meta-data">
+          <ion-avatar>
+            <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="avatar" />
+          </ion-avatar>
+          <div class="info-autor">
+            <ion-text color="dark"><strong>{{ dataService.noticiaSeleccionada()?.autor }}</strong></ion-text>
+            <ion-text color="medium"><p>Publicado hace 2 horas</p></ion-text>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="resumen">{{ dataService.noticiaSeleccionada()?.desc }}</p>
+        
+        <p class="texto-relleno">
+          Esta noticia está impactando a la comunidad global. Se espera que en los próximos días se den a conocer más detalles sobre este acontecimiento que ha captado la atención de todos los sectores informativos.
+        </p>
+
+        <ion-button (click)="compartir()" expand="block" shape="round" color="danger" class="btn-compartir">
+          <ion-icon name="share-social-outline" slot="start"></ion-icon>
+          Compartir con amigos
+        </ion-button>
+      </div>
+    } @else {
+      <div style="margin-top: 100px; text-align: center; padding: 20px;">
+        <ion-icon name="newspaper-outline" style="font-size: 60px; color: #ccc;"></ion-icon>
+        <p>No se encontró la información de la noticia.</p>
+        <ion-button fill="clear" color="danger" (click)="regresar()">Volver al inicio</ion-button>
+      </div>
+    }
+  </div>
 </ion-content>

@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonAvatar, IonButton, IonIcon, IonList, 
   IonItem, IonInput, ActionSheetController, ToastController,
-  NavController, IonModal 
+  NavController, IonModal, LoadingController // <-- 1. IMPORTAMOS LoadingController
 } from '@ionic/angular/standalone'; 
 import { DataService } from '../../services/data';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { addIcons } from 'ionicons';
 import { 
   cameraOutline, imageOutline, closeOutline, 
@@ -27,15 +28,15 @@ import {
 })
 export class PerfilPage implements OnInit {
 
-  isModalOpen = false; // Controla si se ve la foto en grande
+  public dataService = inject(DataService);
+  private actionSheetCtrl = inject(ActionSheetController);
+  private toastCtrl = inject(ToastController);
+  private navCtrl = inject(NavController);
+  private loadingCtrl = inject(LoadingController); // <-- 2. INYECTAMOS el servicio
+
+  isModalOpen = false; 
   
-  constructor(
-    public dataService: DataService,
-    private actionSheetCtrl: ActionSheetController,
-    private toastCtrl: ToastController,
-    private navCtrl: NavController 
-  ) {
-    // Registramos todos los iconos necesarios
+  constructor() {
     addIcons({ 
       cameraOutline, imageOutline, closeOutline, 
       checkmarkCircleOutline, arrowBackOutline, logOutOutline
@@ -43,28 +44,47 @@ export class PerfilPage implements OnInit {
   }
 
   ngOnInit() {
-    // Validación de seguridad
-    if (!this.dataService.usuarioLogueado) {
+    if (!this.dataService.usuarioLogueado()) {
       this.navCtrl.navigateRoot('/login');
     }
   }
 
-  regresar() {
+  async regresar() {
+    await Haptics.impact({ style: ImpactStyle.Light });
     this.navCtrl.back();
   }
 
-  // Función para abrir el modal
   verFoto() {
     this.isModalOpen = true;
   }
 
+  // --- FUNCIÓN CERRAR SESIÓN ACTUALIZADA CON LOADING ---
   async cerrarSesion() {
-    this.dataService.usuarioLogueado = null;
-    this.navCtrl.navigateRoot('/login');
-    this.mostrarMensaje('Sesión cerrada correctamente');
+    // 3. CREAMOS EL LOADING
+    const loading = await this.loadingCtrl.create({
+      message: 'Cerrando sesión...',
+      spinner: 'crescent'
+    });
+
+    // 4. MOSTRAR EL LOADING Y VIBRACIÓN
+    await loading.present();
+    await Haptics.notification({ type: NotificationType.Warning });
+    
+    // Simulamos un pequeño retraso de 1.5 segundos
+    setTimeout(async () => {
+      // 5. QUITAMOS EL LOADING
+      await loading.dismiss();
+
+      // Actualizamos el Signal a null y navegamos
+      this.dataService.usuarioLogueado.set(null);
+      this.navCtrl.navigateRoot('/login');
+      this.mostrarMensaje('Sesión cerrada correctamente');
+    }, 1500);
   }
 
   async cambiarFoto() {
+    await Haptics.impact({ style: ImpactStyle.Medium });
+
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'Actualizar foto de perfil',
       buttons: [
@@ -98,13 +118,19 @@ export class PerfilPage implements OnInit {
       });
 
       if (image && image.webPath) {
-        this.dataService.usuarioLogueado.foto = image.webPath;
+        await Haptics.notification({ type: NotificationType.Success });
+        const usuarioActual = this.dataService.usuarioLogueado();
         
-        const index = this.dataService.usuarios.findIndex(
-          u => u.correo === this.dataService.usuarioLogueado.correo
-        );
-        if (index !== -1) {
-          this.dataService.usuarios[index].foto = image.webPath;
+        if (usuarioActual) {
+          usuarioActual.foto = image.webPath;
+          this.dataService.usuarioLogueado.set({ ...usuarioActual });
+
+          const index = this.dataService.usuarios.findIndex(
+            u => u.correo === usuarioActual.correo
+          );
+          if (index !== -1) {
+            this.dataService.usuarios[index].foto = image.webPath;
+          }
         }
 
         this.mostrarMensaje('¡Foto de perfil actualizada!');

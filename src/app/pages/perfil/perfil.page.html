@@ -9,11 +9,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding ion-text-center" *ngIf="dataService.usuarioLogueado">
+<ion-content class="ion-padding ion-text-center" *ngIf="dataService.usuarioLogueado()">
   
   <div style="margin-top: 30px;">
     <ion-avatar (click)="verFoto()" style="margin: 0 auto; width: 160px; height: 160px; border: 4px solid #eb445a; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;">
-      <img [src]="dataService.usuarioLogueado.foto" 
+      <img [src]="dataService.usuarioLogueado()?.foto" 
            style="width: 100%; height: 100%; object-fit: cover;" />
     </ion-avatar>
 
@@ -25,10 +25,10 @@
 
   <ion-list lines="full" class="ion-margin-top" style="border-radius: 15px; overflow: hidden;">
     <ion-item>
-      <ion-input label="Nombre" labelPlacement="stacked" [(ngModel)]="dataService.usuarioLogueado.nombre" placeholder="Tu nombre"></ion-input>
+      <ion-input label="Nombre" labelPlacement="stacked" [ngModel]="dataService.usuarioLogueado()?.nombre" placeholder="Tu nombre"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-input label="Correo" labelPlacement="stacked" [(ngModel)]="dataService.usuarioLogueado.correo" readonly="true"></ion-input>
+      <ion-input label="Correo" labelPlacement="stacked" [ngModel]="dataService.usuarioLogueado()?.correo" readonly="true"></ion-input>
     </ion-item>
   </ion-list>
 
@@ -37,10 +37,7 @@
   </p>
 
   <div style="margin-top: 40px; padding: 0 20px;">
-    <ion-button (click)="cerrarSesion()" 
-                expand="block" 
-                color="danger" 
-                style="--border-radius: 15px; font-weight: bold; height: 50px;">
+    <ion-button (click)="cerrarSesion()" expand="block" color="danger" style="--border-radius: 15px; font-weight: bold; height: 50px;">
       <ion-icon name="log-out-outline" slot="start"></ion-icon>
       CERRAR SESIÓN
     </ion-button>
@@ -59,7 +56,7 @@
       </ion-header>
       <ion-content class="ion-text-center" style="--background: transparent;">
         <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-          <img [src]="dataService.usuarioLogueado.foto" 
+          <img [src]="dataService.usuarioLogueado()?.foto" 
                style="max-width: 95%; max-height: 80vh; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5);" />
         </div>
       </ion-content>

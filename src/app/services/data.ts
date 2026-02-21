@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core'; // <-- Paso 1: Importamos signal
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
   
-  // Lista maestra de usuarios
+  // Lista maestra de usuarios (Se queda igualita)
   public usuarios: any[] = [
     { 
       nombre: 'Allyson Loera', 
@@ -21,10 +21,11 @@ export class DataService {
     }
   ];
 
-  public usuarioLogueado: any = null;
-  public noticiaSeleccionada: any = null;
+  // Paso 2: Convertimos a SIGNALS (Ahora sí aceptarán el .set())
+  public usuarioLogueado = signal<any>(null);
+  public noticiaSeleccionada = signal<any>(null);
 
-  // Lista de 10 noticias reales con imágenes descriptivas
+  // Lista de 10 noticias reales (Se quedan igualitas)
   public noticias = [
     { 
       id: 1, 

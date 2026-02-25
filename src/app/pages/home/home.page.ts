@@ -7,7 +7,8 @@ import {
   IonCardHeader, IonCardTitle, IonCardContent, 
   IonText, IonIcon, IonRefresher, IonRefresherContent,
   IonSkeletonText, IonThumbnail, 
-  ToastController // <-- 1. Se mantiene aquí (Importación de archivo)
+  ToastController,
+  IonInfiniteScroll, IonInfiniteScrollContent // <-- 1. IMPORTAR COMPONENTES
 } from '@ionic/angular/standalone';
 import { DataService } from '../../services/data';
 import { addIcons } from 'ionicons';
@@ -27,15 +28,13 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
     IonContent, IonButtons, IonButton, IonAvatar, 
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
     IonText, IonIcon, IonRefresher, IonRefresherContent,
-    IonSkeletonText, IonThumbnail
-    // <-- 2. AQUÍ YA NO VA ToastController (Por eso te daba error)
+    IonSkeletonText, IonThumbnail,
+    IonInfiniteScroll, IonInfiniteScrollContent // <-- 2. AGREGAR A IMPORTS
   ],
 })
 export class HomePage implements OnInit {
   public dataService = inject(DataService);
   public router = inject(Router);
-  
-  // 3. AQUÍ ES DONDE REALMENTE SE ACTIVA LA FUNCIÓN
   private toastCtrl = inject(ToastController);
 
   cargando: boolean = true;
@@ -48,20 +47,42 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    setTimeout(() => { this.cargando = false; }, 2000);
+    // Carga inicial de 5 noticias
+    this.cargarNoticias();
+  }
+
+  // Función unificada para cargar noticias
+  cargarNoticias(event?: any) {
+    const nuevas = this.dataService.getMasNoticias(5);
+    this.dataService.noticias.update(actuales => [...actuales, ...nuevas]);
+
+    if (this.cargando) {
+      setTimeout(() => { this.cargando = false; }, 2000);
+    }
+
+    if (event) {
+      event.target.complete();
+    }
+  }
+
+  // 3. FUNCIÓN PARA EL SCROLL INFINITO
+  onInfinite(event: any) {
+    setTimeout(() => {
+      this.cargarNoticias(event);
+    }, 1000); // Pequeña pausa para que se vea el spinner
   }
 
   async handleRefresh(event: any) {
     this.cargando = true;
     await Haptics.impact({ style: ImpactStyle.Light });
-
+    
+    // Limpiamos la lista para simular actualización real
+    this.dataService.noticias.set([]);
+    
     setTimeout(async () => {
-      this.cargando = false;
+      this.cargarNoticias();
       event.target.complete(); 
-      
-      // La función sigue funcionando perfectamente
       await this.mostrarToast('Noticias actualizadas correctamente', 'success');
-      
       await Haptics.impact({ style: ImpactStyle.Medium });
     }, 1500);
   }

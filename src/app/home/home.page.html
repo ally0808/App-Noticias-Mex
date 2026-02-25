@@ -1,17 +1,17 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="white">
     <ion-buttons slot="start">
-      <ion-icon name="newspaper-outline" color="danger" style="font-size: 2rem; margin-left: 15px;"></ion-icon>
+      <ion-icon name="newspaper-outline" color="danger" style="font-size: 2.2rem; margin-left: 15px;"></ion-icon>
     </ion-buttons>
 
-    <ion-title style="font-weight: 800; font-size: 1.4rem; padding-inline: 10px;">
+    <ion-title style="font-weight: 800; font-size: 1.4rem;">
       Noticias <span style="color: #eb445a;">Mex</span>
     </ion-title>
 
     <ion-buttons slot="end">
       <ion-button (click)="router.navigate(['/perfil'])">
         <ion-avatar style="width: 35px; height: 35px; border: 2px solid #eb445a;">
-          <img [src]="dataService.usuarioLogueado?.foto" />
+          <img [src]="dataService.usuarioLogueado()?.foto" />
         </ion-avatar>
       </ion-button>
     </ion-buttons>
@@ -19,22 +19,55 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Desliza para actualizar"
+      refreshingSpinner="circles"
+      refreshingText="Actualizando noticias...">
+    </ion-refresher-content>
+  </ion-refresher>
+
   <div class="welcome-header">
     <h2 style="font-weight: 800; margin-top: 10px;">Titulares de hoy</h2>
   </div>
 
-  @for (noticia of dataService.noticias; track noticia.id) {
-    <ion-card class="noticia-card" (click)="verDetalle(noticia)">
-      <div class="image-container">
-        <img [src]="noticia.img" />
-        <div class="badge-autor">{{ noticia.autor }}</div>
-      </div>
-      <ion-card-header>
-        <ion-card-title>{{ noticia.titulo }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>{{ noticia.desc | slice:0:100 }}...</p>
-      </ion-card-content>
-    </ion-card>
+  @if (cargando) {
+    @for (i of [1,2,3]; track i) {
+      <ion-card class="noticia-card">
+        <ion-thumbnail style="width: 100%; height: 200px;">
+          <ion-skeleton-text [animated]="true" style="line-height: 200px;"></ion-skeleton-text>
+        </ion-thumbnail>
+        
+        <ion-card-header>
+          <ion-skeleton-text [animated]="true" style="width: 80%; height: 22px;"></ion-skeleton-text>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-skeleton-text [animated]="true" style="width: 100%;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </ion-card-content>
+      </ion-card>
+    }
+  } @else {
+    @for (n of dataService.noticias; track n.id) {
+      <ion-card class="noticia-card" (click)="verDetalle(n)" button="true">
+        <div class="image-container">
+          <img [src]="n.img" />
+          <div class="badge-autor">{{ n.autor }}</div>
+        </div>
+        <ion-card-header>
+          <ion-card-title>{{ n.titulo }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ n.desc | slice:0:100 }}...</p>
+          <div class="footer-card">
+            <ion-text color="danger">Leer noticia completa</ion-text>
+            <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
   }
 </ion-content>

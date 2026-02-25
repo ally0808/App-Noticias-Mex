@@ -39,19 +39,16 @@
         <ion-thumbnail style="width: 100%; height: 200px;">
           <ion-skeleton-text [animated]="true" style="line-height: 200px;"></ion-skeleton-text>
         </ion-thumbnail>
-        
         <ion-card-header>
           <ion-skeleton-text [animated]="true" style="width: 80%; height: 22px;"></ion-skeleton-text>
         </ion-card-header>
-
         <ion-card-content>
           <ion-skeleton-text [animated]="true" style="width: 100%;"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
         </ion-card-content>
       </ion-card>
     }
   } @else {
-    @for (n of dataService.noticias; track n.id) {
+    @for (n of dataService.noticias(); track n.id) {
       <ion-card class="noticia-card" (click)="verDetalle(n)" button="true">
         <div class="image-container">
           <img [src]="n.img" />
@@ -69,5 +66,12 @@
         </ion-card-content>
       </ion-card>
     }
+
+    <ion-infinite-scroll (ionInfinite)="onInfinite($event)">
+      <ion-infinite-scroll-content 
+        loadingSpinner="crescent" 
+        loadingText="Buscando más historias...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
   }
 </ion-content>

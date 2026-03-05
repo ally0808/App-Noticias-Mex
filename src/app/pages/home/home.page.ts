@@ -53,11 +53,11 @@ export class HomePage implements OnInit {
 
   // Función unificada para cargar noticias
   cargarNoticias(event?: any) {
-    const nuevas = this.dataService.getMasNoticias(5);
+    const nuevas = this.dataService.getMasNoticias(3);
     this.dataService.noticias.update(actuales => [...actuales, ...nuevas]);
 
     if (this.cargando) {
-      setTimeout(() => { this.cargando = false; }, 2000);
+      setTimeout(() => { this.cargando = false; }, 1500);
     }
 
     if (event) {

@@ -1,59 +1,47 @@
 <ion-content class="ion-padding ion-text-center">
-  
-  <div style="margin-top: 60px; margin-bottom: 40px;">
+  <div style="margin-top: 50px; margin-bottom: 30px;">
     <div style="background: #fdfdfd; display: inline-block; padding: 20px; border-radius: 20px;">
-      <ion-icon name="newspaper-outline" style="font-size: 100px; color: #eb445a;"></ion-icon>
+      <ion-icon name="newspaper-outline" style="font-size: 80px; color: #eb445a;"></ion-icon>
     </div>
-    <h1 style="font-weight: 800; font-size: 2.5rem; margin-top: 20px; color: #333;">
+    <h1 style="font-weight: 800; font-size: 2.2rem; margin-top: 15px; color: #333;">
       Noticias <span style="color: #eb445a;">..Mex.</span>
     </h1>
-    <p style="color: #888; font-size: 0.9rem;">Inicia sesión para continuar</p>
   </div>
 
   <div style="background: #f4f4f4; padding: 25px; border-radius: 20px; margin: 0 10px;">
-    
-    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-        <ion-icon name="newspaper-outline" style="color: #eb445a; font-size: 1.5rem; margin-right: 10px;"></ion-icon>
-        <small style="color: #666;">Ingresa tus credenciales</small>
-    </div>
+    <ion-segment [(ngModel)]="modoRegistro" mode="ios" (ionChange)="vibrarMedio()" style="margin-bottom: 20px;">
+      <ion-segment-button [value]="false"> <ion-label>Entrar</ion-label> </ion-segment-button>
+      <ion-segment-button [value]="true"> <ion-label>Registrar</ion-label> </ion-segment-button>
+    </ion-segment>
 
     <ion-list lines="none" style="background: transparent;">
-      
+      @if (modoRegistro) {
+        <ion-item style="--background: #fff; --border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;">
+          <ion-input type="text" placeholder="Nombre completo" [(ngModel)]="nombreNuevo"></ion-input>
+        </ion-item>
+      }
+
       <ion-item style="--background: #fff; --border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;">
-        <ion-input type="email" 
-                   placeholder="Correo" 
-                   [(ngModel)]="correo" 
-                   name="correo">
-        </ion-input>
+        <ion-input type="email" placeholder="Correo" [(ngModel)]="correo"></ion-input>
       </ion-item>
 
       <ion-item style="--background: #fff; --border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;">
-        <ion-input type="password" 
-                   placeholder="Contraseña" 
-                   [(ngModel)]="clave" 
-                   name="clave">
-        </ion-input>
+        <ion-input type="password" placeholder="Contraseña" [(ngModel)]="clave"></ion-input>
       </ion-item>
-
     </ion-list>
 
-    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
-      
-      <ion-button (click)="iniciarSesion()" 
-                  style="--background: #eb445a; --border-radius: 25px; width: 180px; height: 50px; font-weight: bold; color: white; margin-bottom: 5px; box-shadow: 0 4px 10px rgba(235, 68, 90, 0.3);">
-        INGRESAR
+    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 10px;">
+      <ion-button (click)="modoRegistro ? crearCuentaNueva() : iniciarSesion()" 
+                  style="--background: #eb445a; --border-radius: 25px; width: 200px; height: 50px; font-weight: bold; color: white;">
+        {{ modoRegistro ? 'CREAR CUENTA' : 'INGRESAR' }}
       </ion-button>
 
-      <ion-button fill="clear" (click)="loginConHuella()" style="--color: #333; font-size: 0.8rem;">
-        <ion-icon name="finger-print-outline" slot="start" style="color: #eb445a;"></ion-icon>
-        USAR HUELLA DIGITAL
-      </ion-button>
-      
-      <ion-button fill="clear" (click)="crearCuenta()" style="--color: #eb445a; font-size: 0.9rem; font-weight: 600; margin-top: 10px;">
-        CREAR CUENTA
-      </ion-button>
+      @if (!modoRegistro) {
+        <ion-button fill="clear" (click)="loginConHuella()" style="--color: #333; font-size: 0.8rem; margin-top: 10px;">
+          <ion-icon name="finger-print-outline" slot="start" style="color: #eb445a;"></ion-icon>
+          USAR HUELLA DIGITAL
+        </ion-button>
+      }
     </div>
-
   </div>
-
 </ion-content>

@@ -5,15 +5,20 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonAvatar, IonButton, IonIcon, IonList, 
   IonItem, IonInput, ActionSheetController, ToastController,
-  NavController, IonModal, LoadingController // <-- 1. IMPORTAMOS LoadingController
+  NavController, IonModal, LoadingController, AlertController 
 } from '@ionic/angular/standalone'; 
-import { DataService } from '../../services/data';
+
+// REVISA ESTA LÍNEA (LÍNEA 11): 
+// Si tu carpeta es src/app/pages/perfil, la ruta debe ser:
+import { DataService } from '../../services/data'; 
+
+import { Geolocation } from '@capacitor/geolocation';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { addIcons } from 'ionicons';
 import { 
   cameraOutline, imageOutline, closeOutline, 
-  checkmarkCircleOutline, arrowBackOutline, logOutOutline 
+  checkmarkCircleOutline, arrowBackOutline, logOutOutline, locationOutline 
 } from 'ionicons/icons';
 
 @Component({
@@ -21,9 +26,20 @@ import {
   templateUrl: './perfil.page.html',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, 
-    IonContent, IonButtons, IonAvatar, IonButton, 
-    IonIcon, IonList, IonItem, IonInput, IonModal
+    CommonModule, 
+    FormsModule, 
+    IonHeader, 
+    IonToolbar, 
+    IonTitle, 
+    IonContent, 
+    IonButtons, 
+    IonAvatar, 
+    IonButton, 
+    IonIcon, 
+    IonList, 
+    IonItem, 
+    IonInput, 
+    IonModal
   ]
 })
 export class PerfilPage implements OnInit {
@@ -32,20 +48,46 @@ export class PerfilPage implements OnInit {
   private actionSheetCtrl = inject(ActionSheetController);
   private toastCtrl = inject(ToastController);
   private navCtrl = inject(NavController);
-  private loadingCtrl = inject(LoadingController); // <-- 2. INYECTAMOS el servicio
+  private loadingCtrl = inject(LoadingController);
+  private alertCtrl = inject(AlertController);
 
   isModalOpen = false; 
   
   constructor() {
     addIcons({ 
       cameraOutline, imageOutline, closeOutline, 
-      checkmarkCircleOutline, arrowBackOutline, logOutOutline
+      checkmarkCircleOutline, arrowBackOutline, logOutOutline, locationOutline
     });
   }
 
   ngOnInit() {
+    // Verificamos si hay usuario, si no, al login
     if (!this.dataService.usuarioLogueado()) {
       this.navCtrl.navigateRoot('/login');
+    }
+  }
+
+  async obtenerUbicacion() {
+    await Haptics.impact({ style: ImpactStyle.Medium });
+    const loading = await this.loadingCtrl.create({
+      message: 'Obteniendo coordenadas...',
+      spinner: 'bubbles'
+    });
+    await loading.present();
+
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      await loading.dismiss();
+      
+      const alert = await this.alertCtrl.create({
+        header: 'Ubicación Actual',
+        message: `Latitud: ${coordinates.coords.latitude}\nLongitud: ${coordinates.coords.longitude}`,
+        buttons: ['OK']
+      });
+      await alert.present();
+    } catch (e) {
+      await loading.dismiss();
+      this.mostrarMensaje('Error al obtener ubicación. Revisa los permisos.');
     }
   }
 
@@ -58,24 +100,16 @@ export class PerfilPage implements OnInit {
     this.isModalOpen = true;
   }
 
-  // --- FUNCIÓN CERRAR SESIÓN ACTUALIZADA CON LOADING ---
   async cerrarSesion() {
-    // 3. CREAMOS EL LOADING
     const loading = await this.loadingCtrl.create({
       message: 'Cerrando sesión...',
       spinner: 'crescent'
     });
-
-    // 4. MOSTRAR EL LOADING Y VIBRACIÓN
     await loading.present();
     await Haptics.notification({ type: NotificationType.Warning });
     
-    // Simulamos un pequeño retraso de 1.5 segundos
     setTimeout(async () => {
-      // 5. QUITAMOS EL LOADING
       await loading.dismiss();
-
-      // Actualizamos el Signal a null y navegamos
       this.dataService.usuarioLogueado.set(null);
       this.navCtrl.navigateRoot('/login');
       this.mostrarMensaje('Sesión cerrada correctamente');
@@ -84,25 +118,12 @@ export class PerfilPage implements OnInit {
 
   async cambiarFoto() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-
     const actionSheet = await this.actionSheetCtrl.create({
       header: 'Actualizar foto de perfil',
       buttons: [
-        {
-          text: 'Usar Cámara',
-          icon: 'camera-outline',
-          handler: () => { this.obtenerImagen(CameraSource.Camera); }
-        },
-        {
-          text: 'Elegir de Galería',
-          icon: 'image-outline',
-          handler: () => { this.obtenerImagen(CameraSource.Photos); }
-        },
-        {
-          text: 'Cancelar',
-          icon: 'close-outline',
-          role: 'cancel'
-        }
+        { text: 'Usar Cámara', icon: 'camera-outline', handler: () => { this.obtenerImagen(CameraSource.Camera); } },
+        { text: 'Elegir de Galería', icon: 'image-outline', handler: () => { this.obtenerImagen(CameraSource.Photos); } },
+        { text: 'Cancelar', icon: 'close-outline', role: 'cancel' }
       ]
     });
     await actionSheet.present();
@@ -120,23 +141,17 @@ export class PerfilPage implements OnInit {
       if (image && image.webPath) {
         await Haptics.notification({ type: NotificationType.Success });
         const usuarioActual = this.dataService.usuarioLogueado();
-        
         if (usuarioActual) {
-          usuarioActual.foto = image.webPath;
-          this.dataService.usuarioLogueado.set({ ...usuarioActual });
-
-          const index = this.dataService.usuarios.findIndex(
-            u => u.correo === usuarioActual.correo
-          );
-          if (index !== -1) {
-            this.dataService.usuarios[index].foto = image.webPath;
-          }
+          // Actualizamos la foto en el Signal
+          this.dataService.usuarioLogueado.set({ 
+            ...usuarioActual, 
+            foto: image.webPath 
+          });
         }
-
         this.mostrarMensaje('¡Foto de perfil actualizada!');
       }
     } catch (error) {
-      console.log('Usuario canceló selección de imagen');
+      console.log('Usuario canceló la cámara');
     }
   }
 
@@ -144,9 +159,8 @@ export class PerfilPage implements OnInit {
     const toast = await this.toastCtrl.create({
       message: texto,
       duration: 2000,
-      position: 'bottom',
       color: 'dark',
-      icon: 'checkmark-circle-outline'
+      position: 'bottom'
     });
     await toast.present();
   }

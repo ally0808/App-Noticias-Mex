@@ -8,10 +8,7 @@ import {
   NavController, IonModal, LoadingController, AlertController 
 } from '@ionic/angular/standalone'; 
 
-// REVISA ESTA LÍNEA (LÍNEA 11): 
-// Si tu carpeta es src/app/pages/perfil, la ruta debe ser:
 import { DataService } from '../../services/data'; 
-
 import { Geolocation } from '@capacitor/geolocation';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
@@ -61,7 +58,6 @@ export class PerfilPage implements OnInit {
   }
 
   ngOnInit() {
-    // Verificamos si hay usuario, si no, al login
     if (!this.dataService.usuarioLogueado()) {
       this.navCtrl.navigateRoot('/login');
     }
@@ -96,7 +92,8 @@ export class PerfilPage implements OnInit {
     this.navCtrl.back();
   }
 
-  verFoto() {
+  async verFoto() {
+    await Haptics.impact({ style: ImpactStyle.Light });
     this.isModalOpen = true;
   }
 
@@ -141,8 +138,12 @@ export class PerfilPage implements OnInit {
       if (image && image.webPath) {
         await Haptics.notification({ type: NotificationType.Success });
         const usuarioActual = this.dataService.usuarioLogueado();
+        
         if (usuarioActual) {
-          // Actualizamos la foto en el Signal
+          // 1. Guardamos la ruta en LocalStorage usando el correo como llave
+          localStorage.setItem(`foto_${usuarioActual.correo}`, image.webPath);
+
+          // 2. Actualizamos el estado actual
           this.dataService.usuarioLogueado.set({ 
             ...usuarioActual, 
             foto: image.webPath 

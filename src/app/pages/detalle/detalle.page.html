@@ -11,7 +11,7 @@
 
 <ion-content [fullscreen]="true">
   
-  <div *ngIf="cargando">
+  @if (cargando) {
     <ion-skeleton-text animated style="width: 100%; height: 350px; margin: 0;"></ion-skeleton-text>
     
     <div class="cuerpo-lectura" style="padding: 20px;">
@@ -34,11 +34,8 @@
       <ion-skeleton-text animated style="width: 100%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
       <ion-skeleton-text animated style="width: 100%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
       <ion-skeleton-text animated style="width: 95%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 70%; height: 14px; margin-top: 10px;"></ion-skeleton-text>
     </div>
-  </div>
-
-  <div *ngIf="!cargando">
+  } @else {
     @if (dataService.noticiaSeleccionada()) {
       <div class="noticia-header">
         <img [src]="dataService.noticiaSeleccionada()?.img" alt="imagen noticia" />
@@ -65,7 +62,7 @@
         <p class="resumen">{{ dataService.noticiaSeleccionada()?.desc }}</p>
         
         <p class="texto-relleno">
-          Esta noticia está impactando a la comunidad global. Se espera que en los próximos días se den a conocer más detalles sobre este acontecimiento que ha captado la atención de todos los sectores informativos.
+          Esta noticia está impactando a la comunidad global. Se espera que en los próximos días se den a conocer más detalles sobre este acontecimiento.
         </p>
 
         <ion-button (click)="compartir()" expand="block" shape="round" color="danger" class="btn-compartir">
@@ -80,5 +77,5 @@
         <ion-button fill="clear" color="danger" (click)="regresar()">Volver al inicio</ion-button>
       </div>
     }
-  </div>
+  }
 </ion-content>

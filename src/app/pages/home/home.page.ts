@@ -8,7 +8,7 @@ import {
   IonText, IonIcon, IonRefresher, IonRefresherContent,
   IonSkeletonText, IonThumbnail, 
   ToastController,
-  IonInfiniteScroll, IonInfiniteScrollContent // <-- 1. IMPORTAR COMPONENTES
+  IonInfiniteScroll, IonInfiniteScrollContent 
 } from '@ionic/angular/standalone';
 import { DataService } from '../../services/data';
 import { addIcons } from 'ionicons';
@@ -29,7 +29,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
     IonText, IonIcon, IonRefresher, IonRefresherContent,
     IonSkeletonText, IonThumbnail,
-    IonInfiniteScroll, IonInfiniteScrollContent // <-- 2. AGREGAR A IMPORTS
+    IonInfiniteScroll, IonInfiniteScrollContent 
   ],
 })
 export class HomePage implements OnInit {
@@ -47,17 +47,15 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    // Carga inicial de 5 noticias
     this.cargarNoticias();
   }
 
-  // Función unificada para cargar noticias
   cargarNoticias(event?: any) {
     const nuevas = this.dataService.getMasNoticias(3);
     this.dataService.noticias.update(actuales => [...actuales, ...nuevas]);
 
     if (this.cargando) {
-      setTimeout(() => { this.cargando = false; }, 1500);
+      setTimeout(() => { this.cargando = false; }, 2000);
     }
 
     if (event) {
@@ -65,25 +63,25 @@ export class HomePage implements OnInit {
     }
   }
 
-  // 3. FUNCIÓN PARA EL SCROLL INFINITO
-  onInfinite(event: any) {
+  async onInfinite(event: any) {
+    // Agregamos haptics al cargar más
+    await Haptics.impact({ style: ImpactStyle.Light });
     setTimeout(() => {
       this.cargarNoticias(event);
-    }, 1000); // Pequeña pausa para que se vea el spinner
+    }, 1000);
   }
 
   async handleRefresh(event: any) {
     this.cargando = true;
-    await Haptics.impact({ style: ImpactStyle.Light });
+    await Haptics.impact({ style: ImpactStyle.Medium });
     
-    // Limpiamos la lista para simular actualización real
     this.dataService.noticias.set([]);
     
     setTimeout(async () => {
       this.cargarNoticias();
       event.target.complete(); 
       await this.mostrarToast('Noticias actualizadas correctamente', 'success');
-      await Haptics.impact({ style: ImpactStyle.Medium });
+      await Haptics.impact({ style: ImpactStyle.Light });
     }, 1500);
   }
 
@@ -99,7 +97,7 @@ export class HomePage implements OnInit {
   }
 
   async verDetalle(noticia: any) {
-    await Haptics.impact({ style: ImpactStyle.Light });
+    await Haptics.impact({ style: ImpactStyle.Medium });
     this.dataService.noticiaSeleccionada.set(noticia);
     this.router.navigate(['/detalle']);
   }

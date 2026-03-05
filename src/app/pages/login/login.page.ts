@@ -60,6 +60,14 @@ export class LoginPage {
         if (usuario) {
           await Haptics.impact({ style: ImpactStyle.Medium });
           localStorage.setItem('user_email', this.correo);
+
+          // --- RECUPERAR FOTO GUARDADA ---
+          const fotoGuardada = localStorage.getItem(`foto_${usuario.correo}`);
+          if (fotoGuardada) {
+            usuario.foto = fotoGuardada;
+          }
+          // -------------------------------
+
           this.dataService.usuarioLogueado.set(usuario);
           this.router.navigate(['/home']);
         } else {
@@ -83,7 +91,7 @@ export class LoginPage {
       this.dataService.usuarios.push(nuevoUsuario);
       await Haptics.notification({ type: NotificationType.Success });
       this.mostrarMensaje('Cuenta creada con éxito', 'success');
-      this.modoRegistro = false; // Regresa al login
+      this.modoRegistro = false; 
     } else {
       this.mostrarMensaje('Llena todos los campos para registrarte', 'warning');
     }
@@ -101,9 +109,19 @@ export class LoginPage {
         title: "Huella Digital",
         description: "Toca el sensor"
       });
+      
       const usuario = this.dataService.usuarios.find(u => u.correo === savedEmail);
+      
       if (usuario) {
         await Haptics.impact({ style: ImpactStyle.Light });
+
+        // --- RECUPERAR FOTO GUARDADA (TAMBIÉN EN HUELLA) ---
+        const fotoGuardada = localStorage.getItem(`foto_${usuario.correo}`);
+        if (fotoGuardada) {
+          usuario.foto = fotoGuardada;
+        }
+        // ---------------------------------------------------
+
         this.dataService.usuarioLogueado.set(usuario);
         this.router.navigate(['/home']);
       }
